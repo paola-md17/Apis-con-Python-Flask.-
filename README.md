@@ -47,7 +47,7 @@ EJERCICIOS-APIS/
 
 | Reddit | | |
 |:---:|:---:|:---:|
-| <img src="img/reddit.jpeg" width="350"> | | |
+| <img src="img/reddit.jpeg" width="350"> | 
 
 
 ## 📂 ANEXO: Código Fuente Completo
