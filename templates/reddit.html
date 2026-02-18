@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Analizador de Reddit</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #DAE0E6; padding: 20px; }
+        header { background: #FF4500; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .controles { background: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, select, button { padding: 8px; margin-right: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #FF4500; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .post { background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #FF4500; }
+        .post-titulo { font-size: 18px; font-weight: bold; color: #1c1c1c; text-decoration: none; }
+        .post-meta { font-size: 12px; color: #7c7c7c; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🤖 Analizador de Reddit</h1>
+    </header>
+    
+    <div class="controles">
+        <input type="text" id="subreddit" placeholder="Subreddit (ej: python)" value="python">
+        <select id="filtro">
+            <option value="hot">Hot</option>
+            <option value="new">New</option>
+            <option value="top">Top</option>
+        </select>
+        <button onclick="cargarPosts()">Cargar Posts</button>
+    </div>
+    
+    <div id="resultados"></div>
+
+    <script>
+        async function cargarPosts() {
+            const resDiv = document.getElementById('resultados');
+            const sub = document.getElementById('subreddit').value;
+            const fil = document.getElementById('filtro').value;
+            
+            resDiv.innerHTML = 'Cargando...';
+            
+            try {
+                const response = await fetch(`/api/reddit/posts?subreddit=${sub}&filtro=${fil}`);
+                const data = await response.json();
+                
+                if (data.error) { resDiv.innerHTML = `Error: ${data.error}`; return; }
+                
+                resDiv.innerHTML = data.posts.map(p => `
+                    <div class="post">
+                        <a href="${p.url}" target="_blank" class="post-titulo">${p.titulo}</a>
+                        <div class="post-meta">
+                            u/${p.autor} | ⬆️ ${p.puntos} | 💬 ${p.comentarios} | ${p.fecha}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { resDiv.innerHTML = 'Error de conexión'; }
+        }
+        window.onload = cargarPosts;
+    </script>
+</body>
+</html>

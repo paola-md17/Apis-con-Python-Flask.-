@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Divisas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .converter-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 { text-align: center; color: #11998e; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+        
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
+            color: #11998e;
+        }
+        
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .swap-button {
+            width: 100%;
+            padding: 10px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            margin: 15px 0;
+            transition: background 0.3s;
+        }
+        
+        .swap-button:hover { background: #e0e0e0; }
+        
+        .convert-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+        
+        .result.show { display: block; }
+        .result-amount { font-size: 32px; font-weight: bold; color: #11998e; }
+        .result-rate { color: #666; font-size: 13px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>💰 Conversor de Divisas</h1>
+        <p class="subtitle">Tasas de cambio en tiempo real</p>
+        
+        <div class="input-group">
+            <label>Monto</label>
+            <input type="number" id="monto" value="100" step="0.01">
+        </div>
+        
+        <div class="input-group">
+            <label>De</label>
+            <select id="monedaDe"></select>
+        </div>
+        
+        <button class="swap-button" onclick="intercambiarMonedas()">⇅</button>
+        
+        <div class="input-group">
+            <label>A</label>
+            <select id="monedaA"></select>
+        </div>
+        
+        <button class="convert-button" onclick="convertir()">Convertir ahora</button>
+        
+        <div id="resultado" class="result"></div>
+    </div>
+
+    <script>
+        let infoMonedas = {};
+        
+        // Cargar catálogo de monedas al iniciar
+        window.onload = async () => {
+            try {
+                const response = await fetch('/api/divisas/monedas');
+                infoMonedas = await response.json();
+                
+                const selectDe = document.getElementById('monedaDe');
+                const selectA = document.getElementById('monedaA');
+                
+                Object.keys(infoMonedas).forEach(codigo => {
+                    const info = infoMonedas[codigo];
+                    const texto = `${info.bandera} ${codigo} - ${info.nombre}`;
+                    
+                    selectDe.options.add(new Option(texto, codigo));
+                    selectA.options.add(new Option(texto, codigo));
+                });
+                
+                selectDe.value = 'USD';
+                selectA.value = 'MXN';
+            } catch (e) { console.error("Error cargando monedas", e); }
+        };
+
+        function intercambiarMonedas() {
+            const de = document.getElementById('monedaDe');
+            const a = document.getElementById('monedaA');
+            [de.value, a.value] = [a.value, de.value];
+            convertir();
+        }
+
+        async function convertir() {
+            const monto = document.getElementById('monto').value;
+            const de = document.getElementById('monedaDe').value;
+            const a = document.getElementById('monedaA').value;
+            const resDiv = document.getElementById('resultado');
+
+            if (!monto || monto <= 0) return;
+
+            resDiv.innerHTML = "Convirtiendo...";
+            resDiv.classList.add('show');
+
+            try {
+                const response = await fetch(`/api/divisas/convertir?monto=${monto}&de=${de}&a=${a}`);
+                const data = await response.json();
+                
+                const simbolo = infoMonedas[a].simbolo;
+                resDiv.innerHTML = `
+                    <div class="result-amount">
+                        ${simbolo} ${data.monto_convertido.toLocaleString('es-MX', {minimumFractionDigits: 2})} ${a}
+                    </div>
+                    <div class="result-rate">Tasa: 1 ${de} = ${data.tasa_conversion.toFixed(4)} ${a}</div>
+                    <div style="font-size: 10px; color: #999; margin-top: 10px;">
+                        Actualizado: ${new Date(data.ultima_actualizacion).toLocaleString()}
+                    </div>
+                `;
+            } catch (e) { resDiv.innerHTML = "Error en la conversión"; }
+        }
+
+        // Eventos para conversión automática
+        document.getElementById('monto').addEventListener('input', convertir);
+        document.getElementById('monedaDe').addEventListener('change', convertir);
+        document.getElementById('monedaA').addEventListener('change', convertir);
+    </script>
+</body>
+</html>

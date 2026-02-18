@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Realtime - Firebase</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat-container {
+            width: 90%;
+            max-width: 600px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .chat-header { background: #667eea; color: white; padding: 15px; text-align: center; }
+        .messages-container { flex: 1; padding: 20px; overflow-y: auto; background: #f5f5f5; }
+        .message { margin-bottom: 15px; display: flex; gap: 10px; }
+        .message.own { flex-direction: row-reverse; }
+        .message-bubble { 
+            padding: 10px 15px; 
+            border-radius: 15px; 
+            background: white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 80%;
+        }
+        .message.own .message-bubble { background: #667eea; color: white; }
+        .chat-input { padding: 15px; background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        button { background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; }
+        .avatar-option { font-size: 30px; cursor: pointer; padding: 5px; border: 2px solid transparent; border-radius: 5px; }
+        .avatar-option.selected { border-color: #667eea; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>🔥 Entrar al Chat</h2>
+            <div style="margin: 20px 0; display: flex; justify-content: center; gap: 10px;">
+                <span class="avatar-option selected" onclick="selAvatar(this, '👤')">👤</span>
+                <span class="avatar-option" onclick="selAvatar(this, '🦊')">🦊</span>
+                <span class="avatar-option" onclick="selAvatar(this, '🐱')">🐱</span>
+                <span class="avatar-option" onclick="selAvatar(this, '🦁')">🦁</span>
+            </div>
+            <input type="text" id="nombreUsuario" placeholder="Tu nombre..." style="width: 100%; padding: 10px; margin-bottom: 20px;">
+            <button onclick="iniciarChat()">Comenzar</button>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatApp" style="display: none;">
+        <div class="chat-header">
+            <h3 id="userDisplay">Usuario</h3>
+            <div id="status" style="font-size: 12px; opacity: 0.8;">Conectado</div>
+        </div>
+        <div class="messages-container" id="msgContainer"></div>
+        <div class="chat-input">
+            <input type="text" id="msgInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key === 'Enter') enviar()">
+            <button onclick="enviar()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        let miUsuario = '';
+        let miAvatar = '👤';
+
+        function selAvatar(el, av) {
+            miAvatar = av;
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function iniciarChat() {
+            miUsuario = document.getElementById('nombreUsuario').value.trim();
+            if (!miUsuario) return alert("Ingresa un nombre");
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('chatApp').style.display = 'flex';
+            document.getElementById('userDisplay').textContent = `${miAvatar} ${miUsuario}`;
+            
+            cargarMensajes();
+            setInterval(cargarMensajes, 2000); // Actualización constante cada 2 segundos
+        }
+
+        async function cargarMensajes() {
+            try {
+                const res = await fetch('/api/mensajes');
+                const mensajes = await res.json();
+                const container = document.getElementById('msgContainer');
+                
+                container.innerHTML = mensajes.map(m => `
+                    <div class="message ${m.usuario === miUsuario ? 'own' : ''}">
+                        <div style="font-size: 24px;">${m.avatar || '👤'}</div>
+                        <div class="message-content">
+                            <div style="font-size: 11px; color: #666;">${m.usuario}</div>
+                            <div class="message-bubble">${m.texto}</div>
+                        </div>
+                    </div>
+                `).join('');
+                container.scrollTop = container.scrollHeight;
+            } catch (e) { console.error("Error cargando mensajes", e); }
+        }
+
+        async function enviar() {
+            const input = document.getElementById('msgInput');
+            if (!input.value.trim()) return;
+
+            await fetch('/api/mensajes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    usuario: miUsuario,
+                    texto: input.value,
+                    avatar: miAvatar
+                })
+            });
+            input.value = '';
+            cargarMensajes();
+        }
+    </script>
+</body>
+</html>
