@@ -35,19 +35,19 @@ EJERCICIOS-APIS/
 
 | Chat Realtime | Spotify Search | CRUD Productos |
 |:---:|:---:|:---:|
-| <img src="static/img/chat.jpeg" width="250"> | <img src="static/img/spotify.jpeg" width="250"> | <img src="static/img/productos.jpeg" width="250"> |
+| <img src="img/chat.jpeg" width="250"> | <img src="img/spotify.jpeg" width="250"> | <img src="img/productos.jpeg" width="250"> |
 
 | Películas | Clima | Divisas |
 |:---:|:---:|:---:|
-| <img src="static/img/peliculas.jpeg" width="250"> | <img src="static/img/clima.jpeg" width="250"> | <img src="static/img/divisas.jpeg" width="250"> |
+| <img src="img/peliculas.jpeg" width="250"> | <img src="img/clima.jpeg" width="250"> | <img src="img/divisas.jpeg" width="250"> |
 
 | GitHub | Lugares | Libros |
 |:---:|:---:|:---:|
-| <img src="static/img/github.jpeg" width="250"> | <img src="static/img/lugares.jpeg" width="250"> | <img src="static/img/libros.jpeg" width="250"> |
+| <img src="img/github.jpeg" width="250"> | <img src="img/lugares.jpeg" width="250"> | <img src="img/libros.jpeg" width="250"> |
 
 | Reddit | | |
 |:---:|:---:|:---:|
-| <img src="static/img/reddit.jpeg" width="250"> | | |
+| <img src="img/reddit.jpeg" width="250"> | | |
 
 
 ## 📂 ANEXO: Código Fuente Completo
