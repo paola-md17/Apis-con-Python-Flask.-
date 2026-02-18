@@ -28,3 +28,33 @@ EJERCICIOS-APIS/
 ├── 📂 venv/              # Entorno virtual de Python
 ├── 📄 productos.db       # Base de datos relacional local
 └── 📄 requirements.txt   # Dependencias del proyecto
+
+## 📸 Capturas de Pantalla
+
+| Chat Realtime | Spotify Search | CRUD Productos |
+|:---:|:---:|:---:|
+| <img src="static/img/chat.jpeg" width="250"> | <img src="static/img/spotify.jpeg" width="250"> | <img src="static/img/productos.jpeg" width="250"> |
+
+| Películas | Clima | Divisas |
+|:---:|:---:|:---:|
+| <img src="static/img/peliculas.jpeg" width="250"> | <img src="static/img/clima.jpeg" width="250"> | <img src="static/img/divisas.jpeg" width="250"> |
+
+| GitHub | Lugares | Libros |
+|:---:|:---:|:---:|
+| <img src="static/img/github.jpeg" width="250"> | <img src="static/img/lugares.jpeg" width="250"> | <img src="static/img/libros.jpeg" width="250"> |
+
+| Reddit | | |
+|:---:|:---:|:---:|
+| <img src="static/img/reddit.jpeg" width="250"> | | |
+
+
+## 📂 ANEXO: Código Fuente Completo
+A continuación se adjunta el código fuente de los archivos principales de las APIS para su revisión directa en este documento.
+
+<details>
+<summary><b>CLICK AQUÍ para ver: Chat_app.py</b></summary>
+
+```
+
+
+```
