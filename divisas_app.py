@@ -3,39 +3,50 @@ import requests
 
 app = Flask(__name__)
 
-# Configuración de la API externa
-API_KEY = 'TU_API_KEY_AQUI' # Coloca aquí tu clave real
+# CONFIGURACIÓN: Pega aquí tu llave
+API_KEY = '62d2cfec311c6b45fe452d42' 
 BASE_URL = 'https://v6.exchangerate-api.com/v6'
 
 @app.route('/')
 def index():
     return render_template('divisas.html')
 
+# ESTA RUTA ES NECESARIA PARA QUE LOS SELECTORES NO ESTÉN VACÍOS
+@app.route('/api/divisas/monedas')
+def obtener_monedas():
+    # Este catálogo permite que el JS de tu HTML llene los selects
+    monedas = {
+        "USD": {"nombre": "Dólar", "simbolo": "$"},
+        "MXN": {"nombre": "Peso Mexicano", "simbolo": "$"},
+        "EUR": {"nombre": "Euro", "simbolo": "€"},
+        "GBP": {"nombre": "Libra", "simbolo": "£"}
+    }
+    return jsonify(monedas)
+
 @app.route('/api/divisas/convertir')
 def convertir():
-    """Realiza la conversión entre dos monedas usando el endpoint /pair/ de la API"""
+    # Tu HTML envía estos nombres: monto, de, a
     monto = request.args.get('monto', type=float)
-    de = request.args.get('de', 'USD').upper()
-    a = request.args.get('a', 'MXN').upper()
-    
-    if not monto:
-        return jsonify({'error': 'Monto requerido'}), 400
-    
+    de = request.args.get('de')
+    a = request.args.get('a')
+
+    if not monto or not de or not a:
+        return jsonify({'error': 'Faltan datos'}), 400
+
     try:
-        # Llamada a la API para obtener la conversión exacta
-        url = f'{BASE_URL}/{API_KEY}/pair/{de}/{a}/{monto}'
+        # Llamada a la API externa
+        url = f"{BASE_URL}/{API_KEY}/pair/{de}/{a}/{monto}"
         response = requests.get(url)
         data = response.json()
-        
-        if data['result'] != 'success':
-            return jsonify({'error': 'Error en la conversión de la API'}), 400
-        
-        return jsonify({
-            'monto_original': monto,
-            'monto_convertido': data['conversion_result'],
-            'tasa_conversion': data['conversion_rate'],
-            'ultima_actualizacion': data['time_last_update_utc']
-        })
+
+        if data.get('result') == 'success':
+            # Retornamos los nombres exactos que tu JS espera (monto_convertido, tasa_conversion)
+            return jsonify({
+                'monto_convertido': data['conversion_result'],
+                'tasa_conversion': data['conversion_rate'],
+                'ultima_actualizacion': data['time_last_update_utc']
+            })
+        return jsonify({'error': 'Error en API externa'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

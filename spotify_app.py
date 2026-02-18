@@ -51,7 +51,7 @@ def buscar_spotify():
     response = requests.get(f'{SPOTIFY_API_URL}/search', headers=headers, params=params)
     data = response.json()
     
-    # Procesamiento dinámico de resultados (Canciones, Artistas, etc.)
+
     resultados = []
     items = data.get(f'{tipo}s', {}).get('items', [])
     for item in items:
