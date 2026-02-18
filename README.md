@@ -29,6 +29,8 @@ EJERCICIOS-APIS/
 ├── 📄 productos.db       # Base de datos relacional local
 └── 📄 requirements.txt   # Dependencias del proyecto
 
+```
+
 ## 📸 Capturas de Pantalla
 
 | Chat Realtime | Spotify Search | CRUD Productos |
